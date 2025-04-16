@@ -1,0 +1,6 @@
+name: KarasuConfigLib
+version: '${version}'
+main: com.karasu256.karasuConfigLib.KarasuConfigLib
+api-version: '1.21'
+authors: [ Hashibutogarasu ]
+description: The copilot agent for minecraft
