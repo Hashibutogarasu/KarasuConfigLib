@@ -1,7 +1,6 @@
 package com.karasu256.karasuConfigLib;
 
-import com.karasu256.karasuConfigLib.config.BaseConfig;
-import com.karasu256.karasuConfigLib.config.ExampleConfig;
+import com.karasu256.karasuConfigLib.config.ExampleBaseConfig;
 import com.karasu256.karasuConfigLib.config.TestConfig;
 
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
  * 設定ファイル管理ライブラリのメインプラグインクラスです。
  * <p>
  * このプラグインは、Bukkitプラグイン用の設定ファイル管理ライブラリを提供します。
- * {@link ExampleConfig}をデフォルト設定クラスとして使用し、
+ * {@link ExampleBaseConfig}をデフォルト設定クラスとして使用し、
  * JSON形式での設定ファイルの読み書きを行います。
  * </p>
  * 
@@ -21,10 +20,10 @@ import java.util.List;
  * @author Hashibutogarasu
  * @version 1.0
  * @see AbstractJavaPluginConfigable
- * @see ExampleConfig
+ * @see ExampleBaseConfig
  * @see TestConfig
  */
-public final class KarasuConfigLib extends AbstractJavaPluginConfigable<ExampleConfig> {
+public final class KarasuConfigLib extends AbstractJavaPluginConfigable<ExampleBaseConfig> {
     
     /**
      * プラグインの名前を表す定数です。
@@ -57,14 +56,14 @@ public final class KarasuConfigLib extends AbstractJavaPluginConfigable<ExampleC
     /**
      * デフォルトで読み込む設定クラスのリストを返します。
      * <p>
-     * このプラグインでは、{@link ExampleConfig}と{@link TestConfig}を
+     * このプラグインでは、{@link ExampleBaseConfig}と{@link TestConfig}を
      * デフォルトの設定クラスとして使用します。
      * </p>
-     * 
+     *
      * @return デフォルトの設定クラスのリスト
      */
     @Override
-    public List<Class<? extends BaseConfig>> getDefaultConfigs() {
-        return List.of(ExampleConfig.class, TestConfig.class);
+    public List<Class<? extends ExampleBaseConfig>> getDefaultConfigs() {
+        return List.of(ExampleBaseConfig.class, TestConfig.class);
     }
 }

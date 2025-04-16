@@ -21,7 +21,7 @@ import com.karasu256.karasuConfigLib.annotation.Config;
  * @see Config
  */
 @Config(fileName = "testConfig.json", pluginName = KarasuConfigLib.PLUGIN_NAME)
-public class TestConfig extends BaseConfig {
+public class TestConfig extends ExampleBaseConfig {
 
     /**
      * 設定値を保持する文字列プロパティです。
