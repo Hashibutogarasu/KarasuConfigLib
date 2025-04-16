@@ -57,9 +57,9 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * デフォルトの設定ファイルを初期化します
      */
     private void initializeDefaultConfigs() {
-        List<Class<? extends BaseConfig>> defaultConfigs = getDefaultConfigs();
+        List<Class<? extends T>> defaultConfigs = getDefaultConfigs();
         if (defaultConfigs != null) {
-            for (Class<? extends BaseConfig> configClass : defaultConfigs) {
+            for (Class<? extends T> configClass : defaultConfigs) {
                 try {
                     String fileName = ConfigUtils.getFileName(configClass).orElseThrow();
                     addConfig(fileName, configClass);
@@ -77,7 +77,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * 
      * @return 設定クラスのリスト
      */
-    public abstract List<Class<? extends BaseConfig>> getDefaultConfigs();
+    public abstract List<Class<? extends T>> getDefaultConfigs();
 
     /**
      * Configアノテーションに基づいて設定フォルダの名前を取得します
@@ -143,7 +143,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @param configClass 設定クラス
      * @return 作成に成功した場合はtrue、失敗した場合はfalse
      */
-    protected boolean ensureConfigFolderExists(Class<?> configClass) {
+    protected boolean ensureConfigFolderExists(Class<T> configClass) {
         File configFolder = getPluginConfigFolder(configClass);
         return ensureDirectoryExists(configFolder);
     }
@@ -328,7 +328,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @param <C>         BaseConfigを継承したクラス
      * @return 読み込まれた設定、ファイルが存在しない場合は新しいインスタンス
      */
-    public <C extends BaseConfig> C addConfig(String fileName, Class<C> configClass) {
+    public <C extends T> C addConfig(String fileName, Class<C> configClass) {
         try {
             // ファイルから設定を読み込むか、新しいインスタンスを作成
             C config = loadConfigFromFile(fileName, configClass);
@@ -352,7 +352,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @return 設定オブジェクト、存在しない場合はnull
      */
     @SuppressWarnings("unchecked")
-    public <C extends BaseConfig> C getConfig(String fileName, Class<C> configClass) {
+    public <C extends T> C getConfig(String fileName, Class<C> configClass) {
         BaseConfig config = configMap.get(fileName);
         if (config == null) {
             return addConfig(fileName, configClass);
@@ -390,7 +390,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @see #getConfig(String, Class)
      * @see #getFileName(Class)
      */
-    public <C extends BaseConfig> C getConfig(Class<C> configClass) throws NoSuchElementException {
+    public <C extends T> C getConfig(Class<C> configClass) throws NoSuchElementException {
         String fileName = ConfigUtils.getFileName(configClass).orElseThrow();
         return getConfig(fileName, configClass);
     }
@@ -462,7 +462,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @param <C>         BaseConfigを継承したクラス
      * @return 設定オブジェクト
      */
-    private <C extends BaseConfig> C loadConfigFromFile(String fileName, Class<C> configClass) {
+    private <C extends T> C loadConfigFromFile(String fileName, Class<C> configClass) {
         try {
             File configFolder = getPluginConfigFolder(configClass);
             configFolder.mkdirs();
