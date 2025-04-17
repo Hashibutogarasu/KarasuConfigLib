@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id 'maven-publish'  // 追加: Maven公開用プラグイン
+    id 'maven-publish'
 }
 
 // バージョン管理の設定
