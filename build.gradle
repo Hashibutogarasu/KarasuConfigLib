@@ -38,21 +38,52 @@ version = "${major}.${minor}.${patch}.${buildNumber}"
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = "com.karasu256.karasuConfigLib"
-            artifactId = archivesBaseName
-            version = project.version
-            
             from components.java
+            artifactId = 'karasuconfiglib'
+            
+            version = project.version.toString()
+            
+            pom {
+                name = 'KarasuConfigLib'
+                description = 'A Minecraft plugin that provides config API'
+                url = 'https://github.com/Hashibutogarasu/KarasuConfigLib'
+                
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id = 'hashibutogarasu'
+                        name = 'Hashibutogarasu'
+                        email = 'karasu@karasu256.com'
+                        url = 'https://github.com/Hashibutogarasu'
+                    }
+                }
+                
+                scm {
+                    connection = 'scm:git:git://github.com/Hashibutogarasu/KarasuConfigLib.git'
+                    developerConnection = 'scm:git:ssh://github.com/Hashibutogarasu/KarasuConfigLib.git'
+                    url = 'https://github.com/Hashibutogarasu/KarasuConfigLib'
+                }
+            }
         }
     }
-    
     repositories {
+        maven {
+            name = "Local"
+            url = layout.buildDirectory.dir('repos/bundles')
+        }
+        
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Hashibutogarasu/KarasuConfigLib")
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
