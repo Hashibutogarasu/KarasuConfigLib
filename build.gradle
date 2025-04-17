@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'maven-publish'  // 追加: Maven公開用プラグイン
 }
 
 // バージョン管理の設定
@@ -32,6 +33,30 @@ def patch = versionsProps.getProperty("patch")
 // プロジェクトのバージョンを設定
 group = 'com.karasu256'
 version = "${major}.${minor}.${patch}.${buildNumber}"
+
+// GitHub Packagesへの公開設定
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+            
+            from components.java
+        }
+    }
+    
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Hashibutogarasu/KarasuConfigLib")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
 
 repositories {
     mavenCentral()
