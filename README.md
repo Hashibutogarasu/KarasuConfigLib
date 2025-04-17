@@ -53,10 +53,11 @@ dependencies {
 設定クラスは`BaseConfig`を継承し、`@Config`アノテーションを使用して設定します。
 
 ```java
+import com.karasu256.karasuConfigLib.KarasuConfigLib;
 import com.karasu256.karasuConfigLib.annotation.Config;
 import com.karasu256.karasuConfigLib.config.BaseConfig;
 
-@Config(fileName = "myConfig.json", pluginName = "MyPlugin")
+@Config(fileName = "myConfig.json", pluginName = KarasuConfigLib.PLUGIN_NAME)
 public class MyConfig extends BaseConfig {
     private String serverName = "Default Server";
     private int maxPlayers = 20;
@@ -99,10 +100,12 @@ JavaPlugin の代わりに`AbstractJavaPluginConfigable`を継承します。
 
 ```java
 import com.karasu256.karasuConfigLib.AbstractJavaPluginConfigable;
+import com.karasu256.karasuConfigLib.config.BaseConfig;
 import java.util.List;
-import java.util.Arrays;
 
 public class MyPlugin extends AbstractJavaPluginConfigable<MyConfig> {
+    
+    public static final String PLUGIN_NAME = "MyPlugin";
 
     @Override
     public void onEnable() {
@@ -124,8 +127,8 @@ public class MyPlugin extends AbstractJavaPluginConfigable<MyConfig> {
     }
 
     @Override
-    public List<Class<? extends BaseConfig>> getDefaultConfigs() {
-        return Arrays.asList(MyConfig.class);
+    public List<Class<? extends MyConfig>> getDefaultConfigs() {
+        return List.of(MyConfig.class);
     }
 
     @Override
@@ -141,8 +144,8 @@ public class MyPlugin extends AbstractJavaPluginConfigable<MyConfig> {
 
 ```java
 @Override
-public List<Class<? extends BaseConfig>> getDefaultConfigs() {
-    return Arrays.asList(
+public List<Class<? extends MyConfig>> getDefaultConfigs() {
+    return List.of(
         MainConfig.class,
         DatabaseConfig.class,
         PermissionsConfig.class
