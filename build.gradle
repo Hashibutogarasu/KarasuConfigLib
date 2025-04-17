@@ -38,7 +38,7 @@ version = "${major}.${minor}.${patch}.${buildNumber}"
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = project.group
+            groupId = "com.karasu256.karasuConfigLib"
             artifactId = archivesBaseName
             version = project.version
             
