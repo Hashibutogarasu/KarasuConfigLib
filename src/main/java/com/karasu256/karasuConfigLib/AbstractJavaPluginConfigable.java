@@ -80,8 +80,16 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
     public abstract List<Class<? extends T>> getDefaultConfigs();
 
     /**
+     * プラグインの名前を返します。
+     * この名前は設定フォルダの名前として使用されます。
+     * 
+     * @return プラグインの名前
+     */
+    public abstract String getPluginName();
+
+    /**
      * Configアノテーションに基づいて設定フォルダの名前を取得します
-     * Configアノテーションが存在しない場合はプラグイン名を使用します
+     * Configアノテーションが存在しない場合はgetPluginName()の結果を使用します
      * 
      * @param configClass 設定クラス
      * @return 設定フォルダ名
@@ -93,7 +101,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
                 return pluginName.get();
             }
         }
-        return getName();
+        return getPluginName();
     }
 
     /**
@@ -103,7 +111,8 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      * @return 設定フォルダのパス
      */
     protected File getPluginConfigFolder(Class<?> configClass) {
-        return getDataFolder().getParentFile().toPath().resolve(getConfigFolderName(configClass)).toFile();
+        String folderName = getConfigFolderName(configClass);
+        return getDataFolder().getParentFile().toPath().resolve(folderName).toFile();
     }
 
     /**
@@ -240,7 +249,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
 
         try {
             // 親ディレクトリが存在しない場合は作成
-            File parentDir = getDataFolder();
+            File parentDir = getPluginConfigFolder(getBaseConfig()); // getPluginName()を反映した設定フォルダを使用
             ensureDirectoryExists(parentDir);
             var file = parentDir.toPath().resolve(fileName);
 
@@ -256,10 +265,11 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
 
     public List<T> loadList(String fileName) {
         try {
-            var pluginConfigFolder = getPluginConfigFolder(getBaseConfig());
+            // getPluginName()を反映した一貫したパスを取得
+            File pluginConfigFolder = getPluginConfigFolder(getBaseConfig());
             Files.createDirectories(pluginConfigFolder.toPath());
 
-            var filePath = getDataFolder().toPath().resolve(fileName);
+            var filePath = pluginConfigFolder.toPath().resolve(fileName);
 
             if (!Files.exists(filePath)) {
                 LOGGER.warning("Config list file not found, creating a new one with empty list: " + fileName);
@@ -282,7 +292,8 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
     }
 
     public File getConfigFile(String fileName) {
-        return getDataFolder().toPath().resolve(fileName).toFile();
+        // getPluginName()を反映した設定フォルダを使用
+        return getPluginConfigFolder(getBaseConfig()).toPath().resolve(fileName).toFile();
     }
 
     public GsonBuilder getConfigGsonBuilder() {
@@ -464,6 +475,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
      */
     private <C extends T> C loadConfigFromFile(String fileName, Class<C> configClass) {
         try {
+            // プラグイン名の大文字小文字を保持したフォルダパスを取得
             File configFolder = getPluginConfigFolder(configClass);
             configFolder.mkdirs();
             var filePath = configFolder.toPath().resolve(fileName);

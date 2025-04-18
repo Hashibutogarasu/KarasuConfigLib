@@ -29,7 +29,7 @@ import com.karasu256.karasuConfigLib.annotation.Config;
  * @see BaseConfig
  * @see Config
  */
-@Config(fileName = "exampleConfig.json", pluginName = KarasuConfigLib.PLUGIN_NAME)
+@Config(fileName = "exampleConfig.json")
 public class ExampleBaseConfig extends BaseConfig {
     
     /**

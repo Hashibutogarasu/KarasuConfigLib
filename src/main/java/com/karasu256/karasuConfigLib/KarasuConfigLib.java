@@ -24,46 +24,29 @@ import java.util.List;
  * @see TestConfig
  */
 public final class KarasuConfigLib extends AbstractJavaPluginConfigable<ExampleBaseConfig> {
-    
     /**
      * プラグインの名前を表す定数です。
      * 設定ファイルのディレクトリ名などに使用されます。
      */
     public static final String PLUGIN_NAME = "KarasuConfigLib";
 
-    /**
-     * プラグインが有効化されたときに呼び出されるメソッドです。
-     * <p>
-     *     親クラスの処理を実行して、設定ファイルを読み込みます。
-     * </p>
-     */
     @Override
     public void onEnable() {
         super.onEnable();
     }
 
-    /**
-     * プラグインが無効化されたときに呼び出されるメソッドです。
-     * <p>
-     *     親クラスの処理を実行して、設定ファイルを保存します。
-     * </p>
-     */
     @Override
     public void onDisable() {
         super.onDisable();
     }
 
-    /**
-     * デフォルトで読み込む設定クラスのリストを返します。
-     * <p>
-     * このプラグインでは、{@link ExampleBaseConfig}と{@link TestConfig}を
-     * デフォルトの設定クラスとして使用します。
-     * </p>
-     *
-     * @return デフォルトの設定クラスのリスト
-     */
     @Override
     public List<Class<? extends ExampleBaseConfig>> getDefaultConfigs() {
         return List.of(ExampleBaseConfig.class, TestConfig.class);
+    }
+
+    @Override
+    public String getPluginName() {
+        return PLUGIN_NAME;
     }
 }

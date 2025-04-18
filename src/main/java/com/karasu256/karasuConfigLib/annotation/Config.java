@@ -20,7 +20,7 @@ public @interface Config {
      * 
      * @return プラグイン名
      */
-    String pluginName();
+    String pluginName() default "";
 
     /**
      * 設定ファイルの名前

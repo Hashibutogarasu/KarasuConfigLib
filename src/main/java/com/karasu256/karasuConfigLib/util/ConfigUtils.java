@@ -17,15 +17,17 @@ public class ConfigUtils {
 
     /**
      * 指定されたクラスからConfigアノテーションのプラグイン名を取得します
+     * プラグイン名が空文字の場合は空のOptionalを返します
      *
      * @param <T>         設定クラスの型
      * @param configClass 設定クラス
-     * @return プラグイン名（アノテーションが見つからない場合は空のOptional）
+     * @return プラグイン名（アノテーションが見つからない、または空文字の場合は空のOptional）
      */
     public static <T> Optional<String> getPluginName(Class<T> configClass) {
         if (configClass.isAnnotationPresent(Config.class)) {
             Config config = configClass.getAnnotation(Config.class);
-            return Optional.of(config.pluginName());
+            String pluginName = config.pluginName();
+            return pluginName != null && !pluginName.isEmpty() ? Optional.of(pluginName) : Optional.empty();
         }
         return Optional.empty();
     }
