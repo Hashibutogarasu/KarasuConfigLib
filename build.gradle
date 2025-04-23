@@ -39,14 +39,14 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifactId = 'karasuconfiglib'
+            artifactId = 'karasu-config-lib'
             
             version = project.version.toString()
             
             pom {
                 name = 'KarasuConfigLib'
                 description = 'A Minecraft plugin that provides config API'
-                url = 'https://github.com/Hashibutogarasu/KarasuConfigLib'
+                url = 'https://github.com/Karasu-Lab/KarasuConfigLib'
                 
                 licenses {
                     license {
@@ -65,9 +65,9 @@ publishing {
                 }
                 
                 scm {
-                    connection = 'scm:git:git://github.com/Hashibutogarasu/KarasuConfigLib.git'
-                    developerConnection = 'scm:git:ssh://github.com/Hashibutogarasu/KarasuConfigLib.git'
-                    url = 'https://github.com/Hashibutogarasu/KarasuConfigLib'
+                    connection = 'scm:git:git://github.com/Karasu-Lab/KarasuConfigLib.git'
+                    developerConnection = 'scm:git:ssh://github.com/Karasu-Lab/KarasuConfigLib.git'
+                    url = 'https://github.com/Karasu-Lab/KarasuConfigLib'
                 }
             }
         }
@@ -80,7 +80,7 @@ publishing {
         
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Hashibutogarasu/KarasuConfigLib")
+            url = uri("https://maven.pkg.github.com/Karasu-Lab/KarasuConfigLib")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
                 password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
