@@ -35,7 +35,7 @@ public abstract class AbstractJavaPluginConfigable<T extends BaseConfig> extends
         implements IPluginConfigable<T> {
 
     /** クラス用のロガーインスタンス */
-    public static final Logger LOGGER = Logger.getLogger(AbstractJavaPluginConfigable.class.getName());
+    public static final Logger LOGGER = Logger.getLogger("KarasuConfigLib");
 
     /** 設定ファイル名と設定オブジェクトのマッピング */
     private final Map<String, BaseConfig> configMap = new HashMap<>();
