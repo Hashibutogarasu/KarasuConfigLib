@@ -1,6 +1,5 @@
 package com.karasu256.karasuConfigLib.config;
 
-import com.karasu256.karasuConfigLib.KarasuConfigLib;
 import com.karasu256.karasuConfigLib.annotation.Config;
 
 /**
