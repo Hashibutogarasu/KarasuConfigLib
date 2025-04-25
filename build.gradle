@@ -5,30 +5,38 @@ plugins {
 }
 
 // バージョン管理の設定
-def buildNumberPropertiesFile = file("build-number.properties")
-def versionsPropertiesFile = file("versions.properties")
+def versionFile = file("version.properties")
+def buildNumberFile = file("build-number.properties")
 
-// build-number.propertiesが存在しない場合は作成
-if (!buildNumberPropertiesFile.exists()) {
-    buildNumberPropertiesFile.text = "buildNumber=1"
+// version.propertiesが存在しない場合は作成
+if (!versionFile.exists()) {
+    def versionProps = new Properties()
+    versionProps.setProperty('major', '0')
+    versionProps.setProperty('minor', '1')
+    versionProps.setProperty('patch', '0')
+    versionFile.createNewFile()
+    versionFile.withOutputStream { versionProps.store(it, "Version properties for ${project.name}") }
 }
 
-// versions.propertiesが存在しない場合は作成
-if (!versionsPropertiesFile.exists()) {
-    versionsPropertiesFile.text = "major=0\nminor=1\npatch=0"
+// build-number.propertiesが存在しない場合は作成
+if (!buildNumberFile.exists()) {
+    def buildProps = new Properties()
+    buildProps.setProperty('buildNumber', '1')
+    buildNumberFile.createNewFile()
+    buildNumberFile.withOutputStream { buildProps.store(it, "Build Number for ${project.name}") }
 }
 
 // プロパティファイルの読み込み
-def buildNumberProps = new Properties()
-buildNumberProps.load(new FileInputStream(buildNumberPropertiesFile))
-def versionsProps = new Properties()
-versionsProps.load(new FileInputStream(versionsPropertiesFile))
+def versionProps = new Properties()
+versionFile.withInputStream { versionProps.load(it) }
+def buildProps = new Properties()
+buildNumberFile.withInputStream { buildProps.load(it) }
 
 // バージョン情報の取得
-def buildNumber = buildNumberProps.getProperty("buildNumber").toInteger()
-def major = versionsProps.getProperty("major")
-def minor = versionsProps.getProperty("minor")
-def patch = versionsProps.getProperty("patch")
+def major = versionProps.getProperty('major')
+def minor = versionProps.getProperty('minor')
+def patch = versionProps.getProperty('patch')
+def buildNumber = buildProps.getProperty('buildNumber')
 
 // プロジェクトのバージョンを設定
 group = 'com.karasu256'
@@ -93,38 +101,22 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
 }
 
-// ビルド成功後にビルド番号をインクリメントするタスク
-tasks.register('incrementBuildNumber') {
-    doLast {
-        buildNumber++
-        buildNumberProps.setProperty("buildNumber", buildNumber.toString())
-        buildNumberProps.store(buildNumberPropertiesFile.newWriter(), null)
-        println "Build number incremented to ${buildNumber}"
-    }
+// ルートプロジェクトの共通タスクを適用
+rootProject.ext.createCommonTasks(project)
+
+// ビルドタスク設定
+tasks.named('build') {
+    dependsOn 'syncVersionWithGit'
+    finalizedBy 'incrementBuildNumber'
 }
 
-build.finalizedBy(incrementBuildNumber)
+// processResources タスク設定
+tasks.named('processResources') {
+    dependsOn 'updatePluginVersion'
+}
 
-// Gitブランチとコミットハッシュを取得する拡張メソッド
-ext {
-    getGitBranch = {
-        try {
-            def process = "git rev-parse --abbrev-ref HEAD".execute()
-            process.waitFor()
-            return process.exitValue() == 0 ? process.text.trim() : "unknown"
-        } catch (Exception e) {
-            return "unknown"
-        }
-    }
-    
-    getGitCommitHash = {
-        try {
-            def process = "git rev-parse --short HEAD".execute()
-            process.waitFor()
-            return process.exitValue() == 0 ? process.text.trim() : "unknown"
-        } catch (Exception e) {
-            return "unknown"
-        }
-    }
+// plugin.yml更新タスク設定
+tasks.named('updatePluginVersion') {
+    dependsOn 'syncVersionWithGit'
 }
 
