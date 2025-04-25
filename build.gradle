@@ -89,29 +89,8 @@ publishing {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        name = "papermc-repo"
-        url = "https://repo.papermc.io/repository/maven-public/"
-    }
-    maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/groups/public/"
-    }
-}
-
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
-}
-
-tasks {
-    runServer {
-        // Configure the Minecraft version for our task.
-        // This is the only required configuration besides applying the plugin.
-        // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21.3")
-    }
 }
 
 // ビルド成功後にビルド番号をインクリメントするタスク
@@ -126,145 +105,26 @@ tasks.register('incrementBuildNumber') {
 
 build.finalizedBy(incrementBuildNumber)
 
-def targetJavaVersion = 21
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release.set(targetJavaVersion)
-    }
-}
-
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
-    }
-}
-
-// Gitブランチとコミットハッシュを取得する関数
-def getGitBranch() {
-    try {
-        def process = "git rev-parse --abbrev-ref HEAD".execute()
-        process.waitFor()
-        if (process.exitValue() == 0) {
-            return process.text.trim()
-        } else {
+// Gitブランチとコミットハッシュを取得する拡張メソッド
+ext {
+    getGitBranch = {
+        try {
+            def process = "git rev-parse --abbrev-ref HEAD".execute()
+            process.waitFor()
+            return process.exitValue() == 0 ? process.text.trim() : "unknown"
+        } catch (Exception e) {
             return "unknown"
         }
-    } catch (Exception e) {
-        return "unknown"
     }
-}
-
-def getGitCommitHash() {
-    try {
-        def process = "git rev-parse --short HEAD".execute()
-        process.waitFor()
-        if (process.exitValue() == 0) {
-            return process.text.trim()
-        } else {
+    
+    getGitCommitHash = {
+        try {
+            def process = "git rev-parse --short HEAD".execute()
+            process.waitFor()
+            return process.exitValue() == 0 ? process.text.trim() : "unknown"
+        } catch (Exception e) {
             return "unknown"
         }
-    } catch (Exception e) {
-        return "unknown"
     }
 }
 
-// Minecraft（MC）バージョンを定義
-def mcVersion = "1.21.3"
-
-// サイレントビルドタスク（ビルド番号を上げない）を追加
-tasks.register('silentBuild') {
-    group = 'build'
-    description = 'ビルド番号を上げずにビルドを行う'
-    
-    dependsOn 'compileJava', 'processResources', 'classes'
-    
-    doLast {
-        println "サイレントビルドを実行中..."
-        println "現在のバージョン: ${project.version} (ビルド番号は変更されません)"
-        
-        // plugin.ymlのバージョン更新処理
-        def pluginYml = file('src/main/resources/plugin.yml')
-        if (pluginYml.exists()) {
-            def lines = pluginYml.readLines()
-            def updatedLines = lines.collect { line ->
-                if (line.trim().startsWith('version:')) {
-                    return "version: \"${project.version}\""
-                }
-                return line
-            }
-            pluginYml.text = updatedLines.join('\n')
-            println "plugin.ymlのバージョンを更新: ${project.version}"
-        }
-    }
-    
-    finalizedBy 'silentJar', 'verifyJarOutput'
-}
-
-// サイレントビルド用のJarタスク
-tasks.register('silentJar', Jar) {
-    group = 'build'
-    description = 'ビルド番号を上げずにJARファイルを作成する'
-    
-    doFirst {
-        def gitBranch = getGitBranch()
-        def gitCommit = getGitCommitHash()
-        archiveFileName = "${project.name}-${major}.${minor}.${patch}.${buildNumber}-${mcVersion}-${gitBranch}-${gitCommit}-silent.jar"
-    }
-    
-    archiveBaseName.set(project.name)
-    from sourceSets.main.output
-    dependsOn configurations.compileClasspath
-    destinationDirectory = file("${buildDir}/libs")
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-// サイレントJARをプラグインディレクトリにコピーするタスク
-tasks.register('copySilentJar', Copy) {
-    group = 'build'
-    description = 'サイレントビルドしたJARファイルをプラグインディレクトリにコピーする'
-    
-    from silentJar
-    into 'run/plugins'
-    dependsOn 'silentJar'
-    
-    doFirst {
-        fileTree(dir: 'run/plugins').matching {
-            include "**/${project.name}-*-silent.jar"
-        }.each { file ->
-            logger.lifecycle("古いサイレントJARを削除: ${file.name}")
-            file.delete()
-        }
-    }
-}
-
-// jarファイルの出力確認用タスクを追加
-tasks.register('verifyJarOutput') {
-    group = 'verification'
-    description = 'JARファイルが正しく生成されたことを確認する'
-    
-    doLast {
-        def libsDir = file("${buildDir}/libs")
-        def jarFiles = libsDir.listFiles()?.findAll { it.name.endsWith('.jar') } ?: []
-        
-        if (jarFiles.isEmpty()) {
-            throw new GradleException("JARファイルが生成されませんでした。ビルドに失敗しています。")
-        } else {
-            println "生成されたJARファイル:"
-            jarFiles.each { println " - ${it.name} (${it.length()} bytes)" }
-        }
-    }
-}
