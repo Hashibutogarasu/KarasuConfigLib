@@ -1,5 +1,5 @@
 name: KarasuConfigLib
-version: '${version}'
+version: "0.1.0.10"
 main: com.karasu256.karasuConfigLib.KarasuConfigLib
 api-version: '1.21'
 authors: [ Hashibutogarasu ]
